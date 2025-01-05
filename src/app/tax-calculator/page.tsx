@@ -40,7 +40,7 @@ export default function TaxCalculator() {
 
   const getTaxBrackets = async (year: number) => {
     const apiTaxBracketsData = await fetch(
-      `http://localhost:5001/tax-calculator/tax-year/${year}`
+      `${process.env.NEXT_PUBLIC_BASE_URL}/tax-calculator/tax-year/${year}`
     );
     if (apiTaxBracketsData.status !== 200) {
       const { status, statusText } = apiTaxBracketsData;
