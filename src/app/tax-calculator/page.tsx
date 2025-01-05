@@ -4,6 +4,7 @@ import TaxForm from './taxForm';
 import bigDecimal from 'js-big-decimal';
 import TaxBreakdown from './taxBreakdownTable';
 import { Skeleton } from '@mui/material';
+import ResultBox from './resultBox';
 interface TaxBracket {
   max?: number;
   min: number;
@@ -19,6 +20,7 @@ export interface TaxBreakdown {
   taxes: FederalIncomeTax[];
   sumTaxes: number;
   sumTaxableAmount: number;
+  error?: string;
 }
 
 const defaultState = {
@@ -32,10 +34,20 @@ export default function TaxCalculator() {
   );
   const [loading, setLoading] = useState(false);
 
+  const handleError = (message: string) => {
+    setTaxBreakdown({ ...defaultState, error: message });
+  };
+
   const getTaxBrackets = async (year: number) => {
     const apiTaxBracketsData = await fetch(
       `http://localhost:5001/tax-calculator/tax-year/${year}`
     );
+    if (apiTaxBracketsData.status !== 200) {
+      const { status, statusText } = apiTaxBracketsData;
+      throw new Error(
+        `${statusText}, Status:${status}. There was an error while fetching the tax brackets, please wait a moment and try again`
+      );
+    }
     const apiTaxBrackets = await apiTaxBracketsData.json();
     return apiTaxBrackets?.tax_brackets;
   };
@@ -66,9 +78,15 @@ export default function TaxCalculator() {
 
   const handleSubmit = async (year: number, annualSalary: number) => {
     setLoading(true);
-    const taxBrackets = await getTaxBrackets(year);
-    const taxBreakdowns = calculateTaxes(taxBrackets, annualSalary);
-    setTaxBreakdown(taxBreakdowns);
+    try {
+      const taxBrackets = await getTaxBrackets(year);
+      const taxBreakdowns = calculateTaxes(taxBrackets, annualSalary);
+      setTaxBreakdown(taxBreakdowns);
+    } catch (e) {
+      if (e instanceof Error) {
+        handleError(e.message);
+      }
+    }
     setLoading(false);
   };
 
@@ -80,7 +98,13 @@ export default function TaxCalculator() {
           <Skeleton variant='rectangular' width={768} height={500} />
         </div>
       )}
-      {taxBreakdown?.taxes.length > 0 && !loading && (
+      {(taxBreakdown?.taxes.length > 0 || taxBreakdown.error) && !loading && (
+        <ResultBox
+          totalTaxes={taxBreakdown.sumTaxes}
+          error={taxBreakdown?.error}
+        />
+      )}
+      {taxBreakdown?.taxes.length > 0 && !loading && !taxBreakdown?.error && (
         <TaxBreakdown taxBreakdown={taxBreakdown} />
       )}
     </>
