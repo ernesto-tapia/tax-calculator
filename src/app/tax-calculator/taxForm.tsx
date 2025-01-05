@@ -28,7 +28,7 @@ export default function TaxForm({ handleSubmit, disableSubmit }: TaxFormProps) {
   const handleSalaryChange = (value: string) => {
     const valueNumber = Number(value)
     if(value !==valueNumber.toString() || valueNumber <0){
-      setError('Please only use numbers and positive numbers')
+      setError('Please use positive numbers and no leading zeroes')
       return;
     }else{
       setAnnualSalary(valueNumber);
@@ -58,6 +58,7 @@ export default function TaxForm({ handleSubmit, disableSubmit }: TaxFormProps) {
               type='number'
               inputProps={{ step: 1000 }}
               fullWidth
+              defaultValue={0}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                 handleSalaryChange(event.currentTarget.value)
               }
