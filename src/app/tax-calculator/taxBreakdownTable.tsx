@@ -7,6 +7,7 @@ import {
   TableRow,
 } from '@mui/material';
 import { TaxBreakdown } from './page';
+import { convertIntoCurrency } from '../utils/currencyConversion';
 
 const HEADERS = Object.freeze(['Bracket', 'Tax Rate', 'Taxable Amount', 'Tax']);
 
@@ -21,14 +22,6 @@ export default function TaxBreakdownTable({
     return `From $${min} ${max ? `to $${max}` : 'onwards'}`;
   };
 
-  const convertIntoCurrency = (value: string | number) => {
-    return Number(value).toLocaleString('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 2,
-      roundingMode:'ceil'
-    });
-  };
   return (
     <div className='max-w-fit mx-auto mt-5'>
       <Paper>
