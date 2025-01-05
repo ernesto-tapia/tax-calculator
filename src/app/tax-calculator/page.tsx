@@ -12,13 +12,13 @@ interface TaxBracket {
   rate: number;
 }
 
-interface FederalIncomeTax extends TaxBracket {
+interface TaxesByBracket extends TaxBracket {
   tax: string;
   taxableAmount: number;
 }
 
 export interface TaxBreakdown {
-  taxes: FederalIncomeTax[];
+  taxes: TaxesByBracket[];
   sumTaxes: number;
   sumTaxableAmount: number;
   error?: string;
