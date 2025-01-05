@@ -1,66 +1,81 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import TaxForm from './taxForm';
+import bigDecimal from 'js-big-decimal';
+import TaxBreakdown from './taxBreakdownTable';
+interface TaxBracket {
+  max?: number;
+  min: number;
+  rate: number;
+}
 
+interface FederalIncomeTax extends TaxBracket {
+  tax: string;
+  taxableAmount:number
+}
+
+export interface TaxBreakdown {
+  taxes : FederalIncomeTax[],
+  sumTaxes: number,
+  sumTaxableAmount:number
+}
+
+const defaultState = {
+  taxes:[],
+  sumTaxableAmount:0, sumTaxes:0
+}
 export default function TaxCalculator() {
-  const [taxMargins, setTaxMargins] = useState({});
-  const [annualSalary, setAnnualSalary] = useState(0);
-  const [year, setYear] = useState(2019);
+  const [taxBreakdown, setTaxBreakdown] = useState(
+    defaultState as TaxBreakdown
+  );
 
-  const getTaxMargins = async () => {
-    const apiTaxMarginsData = await fetch(
-      'http://localhost:5001/tax-calculator/tax-year/2019'
+  const getTaxBrackets = async (year: number) => {
+    const apiTaxBracketsData = await fetch(
+      `http://localhost:5001/tax-calculator/tax-year/${year}`
     );
-    const apiTaxMargins = await apiTaxMarginsData.json();
-    setTaxMargins(apiTaxMargins);
+    const apiTaxBrackets = await apiTaxBracketsData.json();
+    return apiTaxBrackets?.tax_brackets;
   };
 
-  useEffect(() => {
-    getTaxMargins();
-  }, []);
+  const calculateTaxes = (
+    brackets: TaxBracket[],
+    annualSalary: number
+  ) => {
+    let remainingIncome = annualSalary;
+    let sumTaxableAmount = 0;
+    let sumTaxes = 0;
+    const taxes = brackets.map((bracket: TaxBracket) => {
+      if (remainingIncome <= 0) return { tax: '0', ...bracket, taxableAmount:0 };
+      const limit = bracket?.max || annualSalary
+      const maxTaxableAmount = limit - bracket.min
+      const taxableAmount =  Math.min(remainingIncome,maxTaxableAmount)
+      const tax = bigDecimal.multiply(taxableAmount, bracket.rate);
+      sumTaxableAmount += Number(taxableAmount);
+      sumTaxes += Number(tax)
+      remainingIncome -= taxableAmount
 
-  const handleSalaryChange = (value: string) => {
-    setAnnualSalary(Number(value));
+
+      return {
+        tax: tax,
+        taxableAmount: taxableAmount,
+        ...bracket,
+      };
+    });
+    return {taxes,sumTaxableAmount, sumTaxes};
   };
 
-  const labelClass = 'block mb-2 mt-2 text-sm font-medium text-gray-500';
-  const textInputClass =
-    'shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5';
+  const handleSubmit = async (year: number, annualSalary: number) => {
+    const taxBrackets = await getTaxBrackets(year);
+    const taxBreakdowns = calculateTaxes(taxBrackets, annualSalary);
+    setTaxBreakdown(taxBreakdowns);
+  };
+
   return (
     <>
-      <div className='max-w-sm mx-auto p-2 shadow-2xl rounded-lg'>
-        <div className='mb-5'>
-          <label className={labelClass}>Annual Salary:</label>
-          <input
-            onChange={(event) => {
-              handleSalaryChange(event.target.value);
-            }}
-            type='annualSalary'
-            id='year'
-            className={textInputClass}
-            placeholder='200000'
-            required
-          />
-          <label className={labelClass}>Year:</label>
-          <input
-            onChange={(event) => {
-              handleSalaryChange(event.target.value);
-            }}
-            type='year'
-            id='year'
-            className={textInputClass}
-            placeholder='2019'
-            required
-          />
-        </div>
-        <div className='container flex flex-col items-center'>
-          <button
-            className=' text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center'
-            onClick={() => {}}
-          >
-            Calculate taxes
-          </button>
-        </div>
-      </div>
+      <TaxForm handleSubmit={handleSubmit} />
+      {taxBreakdown?.taxes.length > 0 && (
+        <TaxBreakdown taxBreakdown={taxBreakdown} />
+      )}
     </>
   );
 }
