@@ -19,7 +19,7 @@ export default function TaxBreakdownTable({
   taxBreakdown: { taxes, sumTaxableAmount, sumTaxes },
 }: TaxBreakdownProps) {
   const getTaxableAmountLabel = (min: number, max: number | undefined) => {
-    return `From $${min} ${max ? `to $${max}` : 'onwards'}`;
+    return `From ${ convertIntoCurrency(min)} ${max ? `to ${convertIntoCurrency(max)}` : 'onwards'}`;
   };
 
   return (
