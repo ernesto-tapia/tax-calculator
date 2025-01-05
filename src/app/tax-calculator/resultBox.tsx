@@ -12,7 +12,7 @@ export default function ResultBox({
     <div className='max-w-md mx-auto'>
       <Paper>
           <div className='p-2 m-3'>
-            <h1>
+            <h1 data-testid='result-text'>
               {error
                 ? error
                 : `Total Taxes: ${convertIntoCurrency(totalTaxes)}`}

@@ -5,6 +5,7 @@ import bigDecimal from 'js-big-decimal';
 import TaxBreakdown from './taxBreakdownTable';
 import { Skeleton } from '@mui/material';
 import ResultBox from './resultBox';
+import { fetchTaxBracket } from '../utils/fetchTaxBracket';
 interface TaxBracket {
   max?: number;
   min: number;
@@ -38,20 +39,6 @@ export default function TaxCalculator() {
     setTaxBreakdown({ ...defaultState, error: message });
   };
 
-  const getTaxBrackets = async (year: number) => {
-    const apiTaxBracketsData = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/tax-calculator/tax-year/${year}`
-    );
-    if (apiTaxBracketsData.status !== 200) {
-      const { status, statusText } = apiTaxBracketsData;
-      throw new Error(
-        `${statusText}, Status:${status}. There was an error while fetching the tax brackets, please wait a moment and try again`
-      );
-    }
-    const apiTaxBrackets = await apiTaxBracketsData.json();
-    return apiTaxBrackets?.tax_brackets;
-  };
-
   const calculateTaxes = (brackets: TaxBracket[], annualSalary: number) => {
     let remainingIncome = annualSalary;
     let sumTaxableAmount = 0;
@@ -79,7 +66,7 @@ export default function TaxCalculator() {
   const handleSubmit = async (year: number, annualSalary: number) => {
     setLoading(true);
     try {
-      const taxBrackets = await getTaxBrackets(year);
+      const taxBrackets = await fetchTaxBracket(year);
       const taxBreakdowns = calculateTaxes(taxBrackets, annualSalary);
       setTaxBreakdown(taxBreakdowns);
     } catch (e) {
@@ -95,7 +82,7 @@ export default function TaxCalculator() {
       <TaxForm handleSubmit={handleSubmit} disableSubmit={loading}/>
       {loading && (
         <div className='max-w-3xl mx-auto mt-5'>
-          <Skeleton variant='rectangular' width={768} height={500} />
+          <Skeleton variant='rectangular' data-testid='loader' width={768} height={500} />
         </div>
       )}
       {(taxBreakdown?.taxes.length > 0 || taxBreakdown.error) && !loading && (
@@ -105,7 +92,7 @@ export default function TaxCalculator() {
         />
       )}
       {taxBreakdown?.taxes.length > 0 && !loading && !taxBreakdown?.error && (
-        <TaxBreakdown taxBreakdown={taxBreakdown} />
+        <TaxBreakdown data-testid='tax-breakdown' taxBreakdown={taxBreakdown} />
       )}
     </>
   );
