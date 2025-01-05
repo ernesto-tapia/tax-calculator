@@ -92,7 +92,7 @@ export default function TaxCalculator() {
 
   return (
     <>
-      <TaxForm handleSubmit={handleSubmit} />
+      <TaxForm handleSubmit={handleSubmit} disableSubmit={loading}/>
       {loading && (
         <div className='max-w-3xl mx-auto mt-5'>
           <Skeleton variant='rectangular' width={768} height={500} />

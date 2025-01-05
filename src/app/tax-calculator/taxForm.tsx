@@ -18,13 +18,23 @@ const AVAILABLE_YEARS = Object.freeze([
 
 interface TaxFormProps {
   handleSubmit: (year: number, annualSalary: number) => Promise<void>;
+  disableSubmit:boolean
 }
-export default function TaxForm({ handleSubmit }: TaxFormProps) {
+export default function TaxForm({ handleSubmit, disableSubmit }: TaxFormProps) {
   const [annualSalary, setAnnualSalary] = useState(0);
   const [year, setYear] = useState(2019);
+  const [error,setError] = useState(null as null|string)
 
   const handleSalaryChange = (value: string) => {
-    setAnnualSalary(Number(value));
+    const valueNumber = Number(value)
+    if(value !==valueNumber.toString() || valueNumber <0){
+      setError('Please only use numbers and positive numbers')
+      return;
+    }else{
+      setAnnualSalary(valueNumber);
+      setError(null)
+    }
+
   };
 
   const handleYearChange = (value: string) => {
@@ -42,6 +52,8 @@ export default function TaxForm({ handleSubmit }: TaxFormProps) {
             <TextField
               id='annual-salary-input'
               required
+              error={Boolean(error)}
+              helperText={error}
               label='Please type your annual salary (USD)'
               type='number'
               inputProps={{ step: 1000 }}
@@ -72,8 +84,7 @@ export default function TaxForm({ handleSubmit }: TaxFormProps) {
           <div className='container flex flex-col items-center'>
             <Button
               variant='contained'
-              style={{backgroundColor:"#ffc72c", color:'black', textTransform:'none',fontWeight:'bold' }}
-              disabled={!annualSalary}
+              disabled={annualSalary < 0 || Boolean(error)|| disableSubmit}
               onClick={() => handleSubmit(year, annualSalary)}
             >
               Calculate Taxes

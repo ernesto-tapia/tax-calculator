@@ -8,7 +8,6 @@ export default function ResultBox({
   totalTaxes: number;
   error?: string;
 }) {
-  console.log(typeof error)
   return (
     <div className='max-w-md mx-auto'>
       <Paper>
