@@ -72,6 +72,7 @@ export default function TaxForm({ handleSubmit }: TaxFormProps) {
           <div className='container flex flex-col items-center'>
             <Button
               variant='contained'
+              style={{backgroundColor:"#ffc72c", color:'black', textTransform:'none',fontWeight:'bold' }}
               disabled={!annualSalary}
               onClick={() => handleSubmit(year, annualSalary)}
             >

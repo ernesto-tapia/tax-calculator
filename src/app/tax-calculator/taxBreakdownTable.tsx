@@ -30,14 +30,16 @@ export default function TaxBreakdownTable({
     });
   };
   return (
-    <div className='max-w-3xl mx-auto mt-5'>
+    <div className='max-w-fit mx-auto mt-5'>
       <Paper>
         <div className='container flex flex-col justify-between p-4'>
           <Table sx={{ minWidth: '50vw' }}>
             <TableHead>
+            <TableRow>
               {HEADERS.map((label) => (
                 <TableCell key={label}>{label}</TableCell>
               ))}
+              </TableRow>
             </TableHead>
             <TableBody>
               {taxes.map((bracket) => (
