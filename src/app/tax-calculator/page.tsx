@@ -29,10 +29,12 @@ const defaultState = {
   sumTaxableAmount: 0,
   sumTaxes: 0,
 };
+
 export default function TaxCalculator() {
   const [taxBreakdown, setTaxBreakdown] = useState(
     defaultState as TaxBreakdown
   );
+
   const [loading, setLoading] = useState(false);
 
   const handleError = (message: string) => {
@@ -79,10 +81,15 @@ export default function TaxCalculator() {
 
   return (
     <>
-      <TaxForm handleSubmit={handleSubmit} disableSubmit={loading}/>
+      <TaxForm handleSubmit={handleSubmit} disableSubmit={loading} />
       {loading && (
         <div className='max-w-3xl mx-auto mt-5'>
-          <Skeleton variant='rectangular' data-testid='loader' width={768} height={500} />
+          <Skeleton
+            variant='rectangular'
+            data-testid='loader'
+            width={768}
+            height={500}
+          />
         </div>
       )}
       {(taxBreakdown?.taxes.length > 0 || taxBreakdown.error) && !loading && (

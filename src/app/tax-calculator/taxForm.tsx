@@ -20,6 +20,7 @@ interface TaxFormProps {
   handleSubmit: (year: number, annualSalary: number) => Promise<void>;
   disableSubmit:boolean
 }
+
 export default function TaxForm({ handleSubmit, disableSubmit }: TaxFormProps) {
   const [annualSalary, setAnnualSalary] = useState(0);
   const [year, setYear] = useState(2019);

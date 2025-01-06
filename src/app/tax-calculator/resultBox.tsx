@@ -11,13 +11,11 @@ export default function ResultBox({
   return (
     <div className='max-w-md mx-auto'>
       <Paper>
-          <div className='p-2 m-3'>
-            <h1 data-testid='result-text'>
-              {error
-                ? error
-                : `Total Taxes: ${convertIntoCurrency(totalTaxes)}`}
-            </h1>
-          </div>
+        <div className='p-2 m-3'>
+          <h1 data-testid='result-text'>
+            {error ? error : `Total Taxes: ${convertIntoCurrency(totalTaxes)}`}
+          </h1>
+        </div>
       </Paper>
     </div>
   );

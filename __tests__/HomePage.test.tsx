@@ -6,7 +6,7 @@ import {
   within,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
-import userEvent from '@testing-library/user-event'
+import userEvent from '@testing-library/user-event';
 import HomePage from '@/app/page';
 
 describe('Home', () => {
@@ -14,8 +14,8 @@ describe('Home', () => {
     return render(<HomePage />);
   };
 
-  it('renders a combobox, a spinbutton and a button, the button gets disabled if the spinbutton is not a number, or a negative number',async () => {
-    const user = userEvent.setup()
+  it('renders a combobox, a spinbutton and a button, the button gets disabled if the spinbutton is not a number, or a negative number', async () => {
+    const user = userEvent.setup();
     renderComponent();
     const spinbutton = screen.getByRole('spinbutton');
     const button = screen.getByRole('button');
@@ -24,17 +24,17 @@ describe('Home', () => {
     expect(spinbutton).toBeInTheDocument();
     expect(combobox).toBeInTheDocument();
     expect(button).not.toBeDisabled();
-    await user.type(spinbutton,"e");
+    await user.type(spinbutton, 'e');
     expect(button).toBeDisabled();
-    await user.clear(spinbutton)
-    await user.type(spinbutton,"-100")
+    await user.clear(spinbutton);
+    await user.type(spinbutton, '-100');
     expect(button).toBeDisabled();
     await user.click(combobox);
-    const listBox= screen.getByRole('listbox')
-    const listItem = within(listBox).getByText('2020')
-    await user.click(listItem)
-    await user.clear(spinbutton)
-    await user.type(spinbutton, "200");
+    const listBox = screen.getByRole('listbox');
+    const listItem = within(listBox).getByText('2020');
+    await user.click(listItem);
+    await user.clear(spinbutton);
+    await user.type(spinbutton, '200');
     expect(button).not.toBeDisabled();
   });
 
@@ -89,24 +89,25 @@ describe('Home', () => {
     fireEvent.change(spinbutton, { target: { value: '23456' } });
     fireEvent.click(button);
     await waitForElementToBeRemoved(await screen.findByTestId('loader'));
-    expect(await screen.findByText('Total Taxes: $3,518.40')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Total Taxes: $3,518.40')
+    ).toBeInTheDocument();
   });
 
-  it('displays error message when api call fails',
-    async () => {
-      global.fetch = jest.fn(() =>
-        Promise.resolve({status:500,statusCode:"500 INTERNAL SERVER ERROR" })
-      ) as jest.Mock;
-      renderComponent();
-      const spinbutton = screen.getByRole('spinbutton');
-      fireEvent.change(spinbutton, { target: { value: '1234' } });
-      const button = screen.getByRole('button');
-      fireEvent.click(button);
-      expect(global.fetch).toHaveBeenCalled();
-      const skeleton = await screen.findByTestId('loader');
+  it('displays error message when api call fails', async () => {
+    global.fetch = jest.fn(() =>
+      Promise.resolve({ status: 500, statusCode: '500 INTERNAL SERVER ERROR' })
+    ) as jest.Mock;
+    renderComponent();
+    const spinbutton = screen.getByRole('spinbutton');
+    fireEvent.change(spinbutton, { target: { value: '1234' } });
+    const button = screen.getByRole('button');
+    fireEvent.click(button);
+    expect(global.fetch).toHaveBeenCalled();
+    const skeleton = await screen.findByTestId('loader');
     expect(skeleton).toBeInTheDocument();
     await waitForElementToBeRemoved(skeleton);
     const resultBox = await screen.findByTestId('result-text');
-      expect(resultBox).toBeInTheDocument();
-    });
+    expect(resultBox).toBeInTheDocument();
+  });
 });
